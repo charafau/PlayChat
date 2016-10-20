@@ -1,0 +1,5 @@
+Play Scala Chat
+=================================
+
+This is a proof of concept with Play and Scala chat
+with websockets, jquery and akka.

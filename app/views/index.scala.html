@@ -1,0 +1,121 @@
+@*
+ * This template takes a single argument, a String containing a
+ * message to display.
+ *@
+@(messages: List[String])
+
+@*
+ * Call the `main` template with two arguments. The first
+ * argument is a `String` with the title of the page, the second
+ * argument is an `Html` object containing the body of the page.
+ *@
+@main("Scala Play Chat") {
+
+    @*
+     * Get an `Html` object by calling the built-in Play welcome
+     * template and passing a `String` message.
+     *@
+    <h4>Messages</h4>
+
+
+    <div id="div1" style="height: 500px;position:relative;">
+        <div id="div2" style="max-height:100%;overflow:auto;">
+            <div id="chatLog">
+
+            </div>
+        </div>
+    </div>
+
+    <form action="#">
+        <div class="mdl-textfield mdl-js-textfield extrawide">
+            <input class="mdl-textfield__input" type="text" id="text">
+            <label class="mdl-textfield__label" for="text">Message...</label>
+
+        </div>
+
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent righty" id="disconnect">Send</button>
+
+    </form>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            if(!("WebSocket" in window)){
+                $('#chatLog, input, button, #examples').fadeOut("fast");
+                $('<p>Oh no, you need a browser that supports WebSockets. How about <a href="http://www.google.com/chrome">Google Chrome</a>?</p>').appendTo('#container');
+            }else{
+
+            //The user has WebSockets
+
+            connect();
+
+             function message(msg){
+                $('#chatLog').append(msg+'</p>');
+            }
+
+            function connect(){
+                try{
+
+
+                    var host = "ws://localhost:9000/socket";
+                    var socket = new WebSocket(host);
+
+                    //message('<p class="event">Socket Status: '+socket.readyState);
+
+                    socket.onopen = function(){
+                         //message('<p class="event">Socket Status: '+socket.readyState+' (open)');
+                    }
+
+
+
+                    socket.onmessage = function(msg){
+                         message('<i class="material-icons  mdl-list__item-avatar">person</i><span class="mdl-chip"><span class="mdl-chip__text">' + msg.data + '</span></span>');
+                         $("#div2").animate({ scrollTop: $("#div2")[0].scrollHeight}, 1000);
+                    }
+
+                    socket.onclose = function(){
+                         //message('<p class="event">Socket Status: '+socket.readyState+' (Closed)');
+                    }
+
+                } catch(exception){
+                     message('<p>Error'+exception);
+                }
+
+                function message(msg){
+                    $('#chatLog').append(msg+'</p>');
+                }
+
+                function send(){
+
+                var text = $('#text').val();
+                if(text==""){
+                    message('<p class="warning">Please enter a message');
+                    return ;
+                }
+                try{
+                    socket.send(text);
+                    //message('<p class="event">Sent: '+text)
+                } catch(exception){
+                message('<p class="warning"> Error:' + exception);
+                }
+
+                $('#text').val("");
+
+                }
+
+                $('#text').keypress(function(event) {
+                    if (event.keyCode == '13') {
+                        send();
+                    }
+                });
+            }
+
+
+
+
+
+        }});
+
+    </script>
+
+}
